@@ -1,0 +1,9 @@
+{
+  "name": "solarfield/lightship-pager-php",
+
+  "autoload": {
+    "psr-4": {
+      "Solarfield\\Lightship\\Pager\\": "src/Solarfield/Lightship/Pager"
+    }
+  }
+}
