@@ -1,7 +1,7 @@
 <?php
 namespace Solarfield\Lightship\Pager;
 
-use Ok\StructUtils;
+use Solarfield\Ok\StructUtils;
 
 abstract class PagerControllerPlugin extends \Lightship\ControllerPlugin implements PagerControllerPluginInterface {
 	public function normalizePagesListItem($aItem) {
