@@ -4,6 +4,8 @@ namespace Solarfield\Lightship\Pager;
 use Solarfield\Ok\StructUtils;
 
 abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlugin implements PagerControllerPluginInterface {
+	private $pages;
+
 	public function normalizePagesListItem($aItem) {
 		return $aItem;
 	}
@@ -13,9 +15,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 	}
 
 	public function getPagesMap() {
-		static $pages;
-
-		if ($pages === null) {
+		if ($this->pages === null) {
 			$list = $this->getPagesList();
 
 			foreach ($list as &$page) {
@@ -61,13 +61,13 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			}
 			unset($page);
 
-			$pages = [
+			$this->pages = [
 				'lookup' => &$lookup,
 				'tree' => &$tree,
 			];
 		}
 
-		return $pages;
+		return $this->pages;
 	}
 
 	public function routeUrl($aUrl) {
