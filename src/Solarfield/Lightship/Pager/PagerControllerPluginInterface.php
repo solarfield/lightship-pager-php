@@ -12,7 +12,7 @@ interface PagerControllerPluginInterface {
 	 * @param array $aItem
 	 * @return array
 	 */
-	public function normalizePagesListItem($aItem);
+	public function normalizeStubPage($aItem);
 
 	/**
 	 * Can be used to fill in defaults or extra data for a full page data structure.

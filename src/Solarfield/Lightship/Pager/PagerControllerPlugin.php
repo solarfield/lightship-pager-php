@@ -6,7 +6,7 @@ use Solarfield\Ok\StructUtils;
 abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlugin implements PagerControllerPluginInterface {
 	private $pages;
 
-	public function normalizePagesListItem($aItem) {
+	public function normalizeStubPage($aItem) {
 		return $aItem;
 	}
 
@@ -68,7 +68,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				$page['url'] = '/' . $url;
 
 				//normalize item
-				$page = $this->normalizePagesListItem($page);
+				$page = $this->normalizeStubPage($page);
 			}
 			unset($page);
 
