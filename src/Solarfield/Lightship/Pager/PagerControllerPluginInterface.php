@@ -33,6 +33,12 @@ interface PagerControllerPluginInterface {
 	public function getFullPage($aCode);
 
 	/**
+	 * @param string $aCode
+	 * @return array|null
+	 */
+	public function getStubPage($aCode);
+
+	/**
 	 * @param string $aUrl
 	 * @return array
 	 */

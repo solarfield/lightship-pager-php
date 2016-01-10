@@ -14,6 +14,17 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		return $aItem;
 	}
 
+	public function getStubPage($aCode) {
+		$page = null;
+
+		$lookup = $this->getPagesMap()['lookup'];
+		if (array_key_exists($aCode, $lookup)) {
+			$page = $lookup[$aCode];
+		}
+
+		return $page;
+	}
+
 	public function getPagesMap() {
 		if ($this->pages === null) {
 			$list = $this->getPagesList();
