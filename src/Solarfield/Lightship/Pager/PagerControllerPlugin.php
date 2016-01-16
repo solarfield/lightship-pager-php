@@ -1,6 +1,7 @@
 <?php
 namespace Solarfield\Lightship\Pager;
 
+use Solarfield\Batten\UnresolvedRouteException;
 use Solarfield\Ok\StructUtils;
 
 abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlugin implements PagerControllerPluginInterface {
@@ -141,7 +142,21 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 	public function handleProcessRoute($aEvt) {
 		$info = null;
 
-		$result = $this->routeUrl($aEvt->buffer['inputRoute']['nextRoute']);
+		$prefix = '';
+
+		//if we already have a current page
+		if (($currentPageCode = $this->getHints()->get('currentPage.code'))) {
+			$currentPage = $this->getStubPage($currentPageCode);
+
+			if (!$currentPage) throw new UnresolvedRouteException(
+				"Was routed to page with code '$currentPageCode', but could not get stub."
+			);
+
+			//use its url as a prefix to the (sub)url being routed
+			$prefix = $currentPage['url'];
+		}
+
+		$result = $this->routeUrl($prefix . $aEvt->buffer['inputRoute']['nextRoute']);
 
 		if ($result) {
 			$aEvt->buffer['outputRoute'] = array(
