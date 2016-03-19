@@ -9,6 +9,6 @@ abstract class PagerHtmlViewPlugin extends \Solarfield\Lightship\HtmlViewPlugin 
 
 	public function __construct(\Solarfield\Lightship\HtmlView $aView, $aComponentCode, $aInstallationCode) {
 		parent::__construct($aView, $aComponentCode, $aInstallationCode);
-		$aView->addEventListener('app-resolve-hints', [$this, 'resolveHints']);
+		$aView->addEventListener('resolve-hints', [$this, 'resolveHints']);
 	}
 }
