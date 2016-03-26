@@ -1,5 +1,5 @@
 <?php
-namespace Solarfield\Lightship\Pager;
+namespace Solarfield\Pager;
 
 use Solarfield\Batten\UnresolvedRouteException;
 use Solarfield\Ok\StructUtils;

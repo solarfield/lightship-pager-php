@@ -1,5 +1,5 @@
 <?php
-namespace Solarfield\Lightship\Pager;
+namespace Solarfield\Pager;
 
 interface PagerHtmlViewPluginInterface {
 

@@ -3,7 +3,7 @@
 
   "autoload": {
     "psr-4": {
-      "Solarfield\\Lightship\\Pager\\": "src/Solarfield/Lightship/Pager"
+      "Solarfield\\Pager\\": "src/Solarfield/Pager"
     }
   }
 }

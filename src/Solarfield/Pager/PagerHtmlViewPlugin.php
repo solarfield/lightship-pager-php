@@ -1,5 +1,5 @@
 <?php
-namespace Solarfield\Lightship\Pager;
+namespace Solarfield\Pager;
 
 abstract class PagerHtmlViewPlugin extends \Solarfield\Lightship\HtmlViewPlugin implements PagerHtmlViewPluginInterface {
 	public function resolveHints($aEv) {
