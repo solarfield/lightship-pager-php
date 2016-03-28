@@ -86,7 +86,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		$info = null;
 
 		//normalize slashes
-		$rewriteUrl = '/' . $aUrl . '/';
+		$rewriteUrl = '/' . $aUrl;
 		$rewriteUrl = preg_replace('/\/{2,}/', '/', $rewriteUrl);
 
 		//normalize slashes
