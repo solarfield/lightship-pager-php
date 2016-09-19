@@ -126,15 +126,15 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 	}
 
 	public function handleDoTask($aEvt) {
-		$hints = $this->getHints();
-		$model = $this->getModel();
+		$hints = $this->getController()->getHints();
+		$model = $this->getController()->getModel();
 
-		if ($hints->get('doLoadPages')) {
-			$model->set('pagesMap', $this->getPagesMap());
+		if ($hints->get('pagerPlugin.doLoadPages')) {
+			$model->set('pagerPlugin.pagesMap', $this->getPagesMap());
 
-			$currentPageCode = $hints->get('currentPage.code');
+			$currentPageCode = $hints->get('pagerPlugin.currentPage.code');
 			if ($currentPageCode) {
-				$model->set('currentPage', $this->normalizeFullPage($this->getFullPage($currentPageCode)));
+				$model->set('pagerPlugin.currentPage', $this->normalizeFullPage($this->getFullPage($currentPageCode)));
 			}
 		}
 	}
@@ -145,7 +145,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		$prefix = '';
 
 		//if we already have a current page
-		if (($currentPageCode = $this->getHints()->get('currentPage.code'))) {
+		if (($currentPageCode = $this->getController()->getHints()->get('pagerPlugin.currentPage.code'))) {
 			$currentPage = $this->getStubPage($currentPageCode);
 
 			if (!$currentPage) throw new UnresolvedRouteException(
@@ -164,12 +164,12 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				'nextRoute' => $result['nextUrl'],
 			);
 
-			$this->getHints()->set('currentPage.code', $result['page']['code']);
+			$this->getController()->getHints()->set('pagerPlugin.currentPage.code', $result['page']['code']);
 		}
 	}
 
-	public function __construct(\Solarfield\Batten\ControllerInterface $aController, $aComponentCode, $aInstallationCode) {
-		parent::__construct($aController, $aComponentCode, $aInstallationCode);
+	public function __construct(\Solarfield\Batten\ControllerInterface $aController, $aComponentCode) {
+		parent::__construct($aController, $aComponentCode);
 
 		$aController->addEventListener('before-do-task', [$this, 'handleDoTask']);
 		$aController->addEventListener('process-route', [$this, 'handleProcessRoute']);
