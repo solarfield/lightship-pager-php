@@ -2,7 +2,7 @@
 namespace Solarfield\Pager;
 
 abstract class PagerHtmlViewPlugin extends \Solarfield\Lightship\HtmlViewPlugin implements PagerHtmlViewPluginInterface {
-	public function resolveHints($aEv) {
+	public function resolveHints() {
 		$hints = $this->getView()->getHints();
 		$hints->set('pagerPlugin.doLoadPages', 1);
 	}

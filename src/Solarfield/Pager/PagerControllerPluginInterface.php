@@ -3,11 +3,6 @@ namespace Solarfield\Pager;
 
 interface PagerControllerPluginInterface {
 	/**
-	 * @return array
-	 */
-	public function getPagesList();
-
-	/**
 	 * Can be used to fill in defaults or extra data for a pages list item data structure.
 	 * @param array $aItem
 	 * @return array
@@ -24,7 +19,12 @@ interface PagerControllerPluginInterface {
 	/**
 	 * @return array
 	 */
-	public function getPagesMap();
+	public function getPagesLookup();
+
+	/**
+	 * @return array
+	 */
+	public function getPagesTree();
 
 	/**
 	 * @param string $aCode
