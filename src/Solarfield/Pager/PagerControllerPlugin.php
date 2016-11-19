@@ -224,7 +224,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 	public function __construct(\Solarfield\Batten\ControllerInterface $aController, $aComponentCode) {
 		parent::__construct($aController, $aComponentCode);
 
-		$aController->addEventListener('before-do-task', [$this, 'handleDoTask']);
+		$aController->addEventListener('do-task', [$this, 'handleDoTask']);
 		$aController->addEventListener('process-route', [$this, 'handleProcessRoute']);
 	}
 }
