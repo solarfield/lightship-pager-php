@@ -175,18 +175,24 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		return $info;
 	}
 
+	public function doLoadPages() {
+		$model = $this->getController()->getModel();
+		$hints = $this->getController()->getHints();
+
+		$model->set('pagerPlugin.pagesLookup', $this->getPagesLookup());
+		$model->set('pagerPlugin.pagesTree', $this->getPagesTree());
+
+		$currentPageCode = $hints->get('pagerPlugin.currentPage.code');
+		if ($currentPageCode) {
+			$model->set('pagerPlugin.currentPage', $this->getFullPage($currentPageCode));
+		}
+	}
+
 	public function handleDoTask() {
 		$hints = $this->getController()->getHints();
-		$model = $this->getController()->getModel();
 
 		if ($hints->get('pagerPlugin.doLoadPages')) {
-			$model->set('pagerPlugin.pagesLookup', $this->getPagesLookup());
-			$model->set('pagerPlugin.pagesTree', $this->getPagesTree());
-
-			$currentPageCode = $hints->get('pagerPlugin.currentPage.code');
-			if ($currentPageCode) {
-				$model->set('pagerPlugin.currentPage', $this->getFullPage($currentPageCode));
-			}
+			$this->doLoadPages();
 		}
 	}
 
