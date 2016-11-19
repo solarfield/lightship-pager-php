@@ -2,6 +2,7 @@
 namespace Solarfield\Pager;
 
 use Solarfield\Batten\UnresolvedRouteException;
+use Solarfield\Lightship\Events\ProcessRouteEvent;
 use Solarfield\Ok\StructUtils;
 
 abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlugin implements PagerControllerPluginInterface {
@@ -189,32 +190,34 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		}
 	}
 
-	public function handleProcessRoute($aEvt) {
-		$info = null;
+	public function handleProcessRoute(ProcessRouteEvent $aEvt) {
+		$info = $aEvt->getRoute();
 
-		$prefix = '';
+		if (($info['nextRoute']??null) !== null) {
+			$prefix = '';
 
-		//if we already have a current page
-		if (($currentPageCode = $this->getController()->getHints()->get('pagerPlugin.currentPage.code'))) {
-			$currentPage = $this->getStubPage($currentPageCode);
+			//if we already have a current page
+			if (($currentPageCode = $this->getController()->getHints()->get('pagerPlugin.currentPage.code'))) {
+				$currentPage = $this->getStubPage($currentPageCode);
 
-			if (!$currentPage) throw new UnresolvedRouteException(
-				"Was routed to page with code '$currentPageCode', but could not get stub."
-			);
+				if (!$currentPage) throw new UnresolvedRouteException(
+					"Was routed to page with code '$currentPageCode', but could not get stub."
+				);
 
-			//use its url as a prefix to the (sub)url being routed
-			$prefix = $currentPage['url'];
-		}
+				//use its url as a prefix to the (sub)url being routed
+				$prefix = $currentPage['url'];
+			}
 
-		$result = $this->routeUrl($prefix . $aEvt->buffer['inputRoute']['nextRoute']);
+			$result = $this->routeUrl($prefix . $info['nextRoute']);
 
-		if ($result) {
-			$aEvt->buffer['outputRoute'] = array(
-				'moduleCode' => $result['page']['module']['code'],
-				'nextRoute' => $result['nextUrl'],
-			);
+			if ($result) {
+				$aEvt->setRoute(array(
+					'moduleCode' => $result['page']['module']['code'],
+					'nextRoute' => $result['nextUrl'],
+				));
 
-			$this->getController()->getHints()->set('pagerPlugin.currentPage.code', $result['page']['code']);
+				$this->getController()->getHints()->set('pagerPlugin.currentPage.code', $result['page']['code']);
+			}
 		}
 	}
 
