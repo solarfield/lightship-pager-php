@@ -174,6 +174,13 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 
 		return $info;
 	}
+	
+	public function invalidateCache() {
+		$this->pagesLookup = null;
+		$this->pagesTree = null;
+		$this->fullPage = null;
+		$this->fullPageCode = null;
+	}
 
 	public function doLoadPages() {
 		$model = $this->getController()->getModel();
