@@ -31,6 +31,8 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				'code' => null,
 				'title' => null,
 				'slug' => null,
+				'slugMatchMode' => null, //'equal' (default), 'placeholder'
+				'slugMatches' => [],
 				'module' => null,
 				'_parentPageCode' => null,
 			], $page);
@@ -44,17 +46,38 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		foreach ($lookup as &$page) {
 			unset($page['_parentPageCode']);
 
-			//generate url
+			
+			//generate url & regex used by routeUrl()
+			
 			$url = '';
+			$urlPattern = '';
+			
 			$tempPage = $page;
 			do {
 				if ($tempPage['slug']) {
 					$url = $tempPage['slug'] . '/' . $url;
+					
+					if ($tempPage['slugMatchMode'] == 'placeholder') {
+						array_unshift($page['slugMatches'], [
+							'name' => $tempPage['slug'],
+						]);
+						
+						$urlPattern = '([^\/]+)\/' . $urlPattern;
+					}
+					
+					else {
+						$urlPattern = preg_quote($tempPage['slug'], '/') . '\/' . $urlPattern;
+					}
 				}
 			}
 			while (($tempPage = $tempPage['parentPage']) != null);
+			
 			$page['url'] = '/' . $url;
+			
+			$urlPattern = '/^\/' . $urlPattern . '(.*)/i';
+			$page['urlPattern'] = $urlPattern;
 
+			
 			//normalize item
 			$page = $this->normalizeStubPage($page);
 		}
@@ -134,44 +157,50 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 
 	public function routeUrl($aUrl) {
 		$info = null;
-
+		
 		//normalize slashes
 		$rewriteUrl = '/' . $aUrl;
 		$rewriteUrl = preg_replace('/\/{2,}/', '/', $rewriteUrl);
-
+		
 		//normalize slashes
 		$directoryRewriteUrl = '/' . $rewriteUrl . '/';
 		$directoryRewriteUrl = preg_replace('/\/{2,}/', '/', $directoryRewriteUrl);
-
+		
 		$subRewriteUrl = null;
-
+		
 		//create a page lookup based with urls for keys, sorted in reverse
 		$pages = array();
 		foreach ($this->getPagesLookup() as $page) {
 			$pages[$page['url']] = $page;
 		}
 		krsort($pages);
-
+		
 		//find the first matching page
 		$matchedPage = null;
+		$matches = [];
 		foreach ($pages as $page) {
-			if (stripos($directoryRewriteUrl, $page['url']) === 0) {
+			if (preg_match($page['urlPattern'], $directoryRewriteUrl, $matches)) {
 				$matchedPage = $page;
 				break;
 			}
 		}
-
+		
 		if ($matchedPage) {
-			if (strcasecmp($directoryRewriteUrl, $matchedPage['url']) != 0) {
-				$subRewriteUrl = preg_replace('/^' . preg_quote($matchedPage['url'], '/') . '/', '', $rewriteUrl);
-			}
-
-			$info = array(
+			//remove first match, which is the entire url
+			array_shift($matches);
+			
+			$info = [
 				'page' => $matchedPage,
-				'nextUrl' => $subRewriteUrl,
-			);
+				'hints' => [],
+				'nextUrl' => preg_replace($matchedPage['urlPattern'], '$' . count($matches), $rewriteUrl) ?: null,
+			];
+			
+			//set hints from the slug placeholders and their associated values
+			foreach ($matchedPage['slugMatches'] as $i => $slugMatch) {
+				$info['hints'][$slugMatch['name']] = $matches[$i];
+			}
 		}
-
+		
 		return $info;
 	}
 	
@@ -229,6 +258,10 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 					'nextRoute' => $result['nextUrl'],
 				));
 
+				foreach ($result['hints'] as $k => $v) {
+					$this->getController()->getHints()->set($k, $v);
+				}
+				
 				$this->getController()->getHints()->set('pagerPlugin.currentPage.code', $result['page']['code']);
 			}
 		}
