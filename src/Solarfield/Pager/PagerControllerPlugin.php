@@ -1,7 +1,7 @@
 <?php
 namespace Solarfield\Pager;
 
-use Solarfield\Batten\UnresolvedRouteException;
+use Solarfield\Lightship\UnresolvedRouteException;
 use Solarfield\Lightship\Events\ProcessRouteEvent;
 use Solarfield\Ok\StructUtils;
 
@@ -267,7 +267,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		}
 	}
 
-	public function __construct(\Solarfield\Batten\ControllerInterface $aController, $aComponentCode) {
+	public function __construct(\Solarfield\Lightship\ControllerInterface $aController, $aComponentCode) {
 		parent::__construct($aController, $aComponentCode);
 
 		$aController->addEventListener('do-task', [$this, 'handleDoTask']);
