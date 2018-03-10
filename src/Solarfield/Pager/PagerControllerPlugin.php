@@ -1,7 +1,7 @@
 <?php
 namespace Solarfield\Pager;
 
-use Solarfield\Lightship\UnresolvedRouteException;
+use Solarfield\Lightship\Errors\UnresolvedRouteException;
 use Solarfield\Lightship\Events\ProcessRouteEvent;
 use Solarfield\Ok\StructUtils;
 
