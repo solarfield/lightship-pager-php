@@ -197,7 +197,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			
 			//set hints from the slug placeholders and their associated values
 			foreach ($matchedPage['slugMatches'] as $i => $slugMatch) {
-				$info['hints'][$slugMatch['name']] = $matches[$i];
+				StructUtils::set($info['hints'], $slugMatch['name'], $matches[$i]);
 			}
 		}
 		
@@ -239,7 +239,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			$prefix = '';
 
 			//if we already have a current page
-			if (($currentPageCode = $this->getController()->getHints()->get('pagerPlugin.currentPage.code'))) {
+			if (($currentPageCode = StructUtils::get($info['hints'], 'pagerPlugin.currentPage.code'))) {
 				$currentPage = $this->getStubPage($currentPageCode);
 
 				if (!$currentPage) throw new UnresolvedRouteException(
@@ -253,16 +253,16 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			$result = $this->routeUrl($prefix . $info['nextRoute']);
 
 			if ($result) {
-				$aEvt->setRoute(array(
+				$newRoute = array(
 					'moduleCode' => $result['page']['module']['code'],
 					'nextRoute' => $result['nextUrl'],
-				));
-
-				foreach ($result['hints'] as $k => $v) {
-					$this->getController()->getHints()->set($k, $v);
-				}
+					'hints' => $result['hints'],
+				);
 				
-				$this->getController()->getHints()->set('pagerPlugin.currentPage.code', $result['page']['code']);
+				//set a hint for the new current page
+				StructUtils::set($newRoute['hints'], 'pagerPlugin.currentPage.code', $result['page']['code']);
+				
+				$aEvt->setRoute($newRoute);
 			}
 		}
 	}
