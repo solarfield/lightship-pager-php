@@ -233,13 +233,13 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 	}
 
 	public function handleProcessRoute(ProcessRouteEvent $aEvt) {
-		$info = $aEvt->getRoute();
+		$route = $aEvt->getContext()->getRoute();
 
-		if (($info['nextRoute']??null) !== null) {
+		if ($route->getNextStep() !== null) {
 			$prefix = '';
 
 			//if we already have a current page
-			if (($currentPageCode = StructUtils::get($info['hints'], 'pagerPlugin.currentPage.code'))) {
+			if (($currentPageCode = $this->getController()->getHints()->get('pagerPlugin.currentPage.code'))) {
 				$currentPage = $this->getStubPage($currentPageCode);
 
 				if (!$currentPage) throw new UnresolvedRouteException(
@@ -250,19 +250,19 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				$prefix = $currentPage['url'];
 			}
 
-			$result = $this->routeUrl($prefix . $info['nextRoute']);
+			$result = $this->routeUrl($prefix . $route->getNextStep());
 
 			if ($result) {
 				$newRoute = array(
 					'moduleCode' => $result['page']['module']['code'],
-					'nextRoute' => $result['nextUrl'],
+					'nextStep' => $result['nextUrl'],
 					'hints' => $result['hints'],
 				);
 				
 				//set a hint for the new current page
 				StructUtils::set($newRoute['hints'], 'pagerPlugin.currentPage.code', $result['page']['code']);
 				
-				$aEvt->setRoute($newRoute);
+				$aEvt->getContext()->setRoute($newRoute);
 			}
 		}
 	}
