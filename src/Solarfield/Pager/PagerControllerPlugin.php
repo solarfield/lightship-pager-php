@@ -19,7 +19,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			//restructure any child pages in the index, to the top level
 			if (array_key_exists('childPages', $page)) {
 				foreach ($page['childPages'] as $childPage) {
-					$childPage['_parentPageCode'] = $page['code'];
+					$childPage['parentPageCode'] = $page['code'];
 					array_push($list, $childPage);
 				}
 
@@ -34,17 +34,23 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				'slugMatchMode' => null, //'equal' (default), 'placeholder'
 				'slugMatches' => [],
 				'module' => null,
-				'_parentPageCode' => null,
+				'parentPageCode' => null,
 			], $page);
+
+			// TODO: _parentPageCode is deprecated
+			if (!$page['parentPageCode'] && array_key_exists('_parentPageCode', $page)) {
+				$page['parentPageCode'] = $page['_parentPageCode'];
+				unset($page['_parentPageCode']);
+			}
 		}
 		unset($page);
 
 		//generate the lookup and tree
 		$lookup = StructUtils::delegate($list, 'code');
-		$tree = StructUtils::tree($list, 'code', '_parentPageCode', 'childPages', 'parentPage');
+		$tree = StructUtils::tree($list, 'code', 'parentPageCode', 'childPages', 'parentPage');
 
 		foreach ($lookup as &$page) {
-			unset($page['_parentPageCode']);
+			unset($page['parentPageCode']);
 
 			
 			//generate url & regex used by routeUrl()
