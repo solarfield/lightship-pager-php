@@ -42,6 +42,14 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				$page['parentPageCode'] = $page['_parentPageCode'];
 				unset($page['_parentPageCode']);
 			}
+
+			// allow shorthand moduleCode property
+			if (!$page['module'] && array_key_exists('moduleCode', $page)) {
+				$page['module'] = [
+					'code' => $page['moduleCode'],
+				];
+				unset($page['moduleCode']);
+			}
 		}
 		unset($page);
 
