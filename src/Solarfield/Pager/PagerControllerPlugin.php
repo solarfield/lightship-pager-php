@@ -32,24 +32,29 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				'title' => null,
 				'slug' => null,
 				'slugMatchMode' => null, //'equal' (default), 'placeholder'
-				'slugMatches' => [],
 				'module' => null,
 				'parentPageCode' => null,
 			], $page);
 
+			// set some properties which are always generated internally
+			$page['parentPage'] = null;
+			$page['url'] = null;
+			$page['urlPattern'] = null;
+			$page['slugMatches'] = [];
+
 			// TODO: _parentPageCode is deprecated
 			if (!$page['parentPageCode'] && array_key_exists('_parentPageCode', $page)) {
 				$page['parentPageCode'] = $page['_parentPageCode'];
-				unset($page['_parentPageCode']);
 			}
+			unset($page['_parentPageCode']);
 
 			// allow shorthand moduleCode property
 			if (!$page['module'] && array_key_exists('moduleCode', $page)) {
 				$page['module'] = [
 					'code' => $page['moduleCode'],
 				];
-				unset($page['moduleCode']);
 			}
+			unset($page['moduleCode']);
 		}
 		unset($page);
 
