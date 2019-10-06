@@ -1,6 +1,7 @@
 <?php
 namespace Solarfield\Pager;
 
+use Exception;
 use Solarfield\Lightship\Errors\UnresolvedRouteException;
 use Solarfield\Lightship\Events\ProcessRouteEvent;
 use Solarfield\Ok\StructUtils;
@@ -35,6 +36,10 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				'module' => null,
 				'parentPageCode' => null,
 			], $page);
+
+			if (!$page['code']) throw new Exception(
+				"Encountered page with no 'code'."
+			);
 
 			// set some properties which are always generated internally
 			$page['parentPage'] = null;
