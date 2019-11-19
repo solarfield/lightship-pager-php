@@ -31,14 +31,14 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				'code' => null,
 				'title' => null,
 				'slug' => null,
-				'slugMatchMode' => null, //'equal' (default), 'placeholder'
+				'slugMatchMode' => null, //'equal' (default), 'placeholder', 'never'
 				'module' => null,
 				'parentPageCode' => null,
+				'url' => null,
 			], $page);
 
 			// set some properties which are always generated internally
 			$page['parentPage'] = null;
-			$page['url'] = null;
 			$page['urlPattern'] = null;
 			$page['slugMatches'] = [];
 
@@ -73,6 +73,13 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			
 			$tempPage = $page;
 			do {
+				// if at any time we encounter a page with slugMatchMode=never,
+				// clear the $urlPattern (marking it as un-routable), and exit.
+				if ($tempPage['slugMatchMode'] == 'never') {
+					$urlPattern = null;
+					break;
+				}
+				
 				if ($tempPage['slug']) {
 					$url = $tempPage['slug'] . '/' . $url;
 					
@@ -91,16 +98,23 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			}
 			while (($tempPage = $tempPage['parentPage']) != null);
 			
-			$page['url'] = '/' . $url;
+			// if the page does not already have a url (i.e. it was not explicitly specified in the the data)
+			if ($page['url'] === null) {
+				// set it to the generated url
+				$page['url'] = '/' . $url;
+			}
 			
-			$urlPattern = '/^\/' . $urlPattern . '(.*)/i';
-			$page['urlPattern'] = $urlPattern;
-
+			// if we have a $urlPattern, set it on the page, for the router to use later
+			if ($urlPattern !== null) {
+				$urlPattern = '/^\/' . $urlPattern . '(.*)/i';
+				$page['urlPattern'] = $urlPattern;
+			}
 			
 			//normalize item
 			$page = $this->normalizeStubPage($page);
+			
+			unset($page);
 		}
-		unset($page);
 
 		$this->pagesLookup = &$lookup;
 		$this->pagesTree = &$tree;
@@ -198,9 +212,11 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		$matchedPage = null;
 		$matches = [];
 		foreach ($pages as $page) {
-			if (preg_match($page['urlPattern'], $directoryRewriteUrl, $matches)) {
-				$matchedPage = $page;
-				break;
+			if ($page['urlPattern']) {
+				if (preg_match($page['urlPattern'], $directoryRewriteUrl, $matches)) {
+					$matchedPage = $page;
+					break;
+				}
 			}
 		}
 		
