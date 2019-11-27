@@ -13,6 +13,8 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 	private $fullPageCode;
 
 	private function buildMaps() {
+		$lowValue = '0000000000';
+		
 		$list = $this->loadStubPages();
 
 		foreach ($list as &$page) {
@@ -40,6 +42,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			// set some properties which are always generated internally
 			$page['parentPage'] = null;
 			$page['urlPattern'] = null;
+			$page['urlSortValue'] = '';
 			$page['slugMatches'] = [];
 
 			// TODO: _parentPageCode is deprecated
@@ -70,6 +73,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 			
 			$url = '';
 			$urlPattern = '';
+			$urlSortValue = '';
 			
 			$tempPage = $page;
 			do {
@@ -77,6 +81,7 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				// clear the $urlPattern (marking it as un-routable), and exit.
 				if ($tempPage['slugMatchMode'] == 'never') {
 					$urlPattern = null;
+					$urlSortValue = $lowValue;
 					break;
 				}
 				
@@ -89,10 +94,12 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 						]);
 						
 						$urlPattern = '([^\/]+)\/' . $urlPattern;
+						$urlSortValue = $lowValue . '/' . $urlSortValue;
 					}
 					
 					else {
 						$urlPattern = preg_quote($tempPage['slug'], '/') . '\/' . $urlPattern;
+						$urlSortValue = $tempPage['slug'] . '/' . $urlSortValue;
 					}
 				}
 			}
@@ -109,6 +116,8 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				$urlPattern = '/^\/' . $urlPattern . '(.*)/i';
 				$page['urlPattern'] = $urlPattern;
 			}
+			
+			$page['urlSortValue'] = $urlSortValue;
 			
 			//normalize item
 			$page = $this->normalizeStubPage($page);
@@ -201,12 +210,17 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		
 		$subRewriteUrl = null;
 		
-		//create a page lookup based with urls for keys, sorted in reverse
+		//create a page lookup based with urls for keys, sorted by urlSortValue descending
 		$pages = array();
 		foreach ($this->getPagesLookup() as $page) {
 			$pages[$page['url']] = $page;
 		}
-		krsort($pages);
+		uasort($pages, function ($a, $b) {
+			$s = $b['urlSortValue'] <=> $a['urlSortValue'];
+			if ($s !== 0) return $s;
+			
+			return 0;
+		});
 		
 		//find the first matching page
 		$matchedPage = null;
