@@ -221,7 +221,10 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		//create a page lookup based with urls for keys, sorted by urlSortValue descending
 		$pages = array();
 		foreach ($this->getPagesLookup() as $page) {
-			$pages[$page['url']] = $page;
+			// ignore un-routable pages
+			if ($page['slugMatchMode'] != 'never') {
+				$pages[$page['url']] = $page;
+			}
 		}
 		uasort($pages, function ($a, $b) {
 			$s = $b['urlSortValue'] <=> $a['urlSortValue'];
