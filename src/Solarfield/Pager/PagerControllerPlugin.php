@@ -34,13 +34,6 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 				'title' => null,
 				'slug' => null,
 				'slugMatchMode' => null, //'equal' (default), 'placeholder', 'never'
-
-				// regex used to match when slugMatchMode=placeholder
-				// Leave null to match anything.
-				// The regex will be matched against the slug value only. e.g. foo in /some-url/foo/
-				// Remember to specify any desired start/end ^/$, and case-(in)sensitivity flags.
-				'slugPattern' => null,
-
 				'module' => null,
 				'parentPageCode' => null,
 				'url' => null,
@@ -98,7 +91,6 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 					if ($tempPage['slugMatchMode'] == 'placeholder') {
 						array_unshift($page['slugMatches'], [
 							'name' => $tempPage['slug'],
-							'slugPattern' => $tempPage['slugPattern'],
 						]);
 						
 						$urlPattern = '([^\/]+)\/' . $urlPattern;
@@ -239,31 +231,16 @@ abstract class PagerControllerPlugin extends \Solarfield\Lightship\ControllerPlu
 		foreach ($pages as $page) {
 			if ($page['urlPattern']) {
 				if (preg_match($page['urlPattern'], $directoryRewriteUrl, $matches)) {
-					//remove first match, which is the entire url
-					array_shift($matches);
-
-					// if the page has slugs to match (i.e. uses slugMatchMode=placeholder, etc.)
-					if ($page['slugMatches']) {
-						// ensure the slug values match the slug patterns
-						// A null pattern matches anything.
-						foreach ($page['slugMatches'] as $i => $slugMatch) {
-							if (!$slugMatch['slugPattern'] || preg_match($slugMatch['slugPattern'], $matches[$i])) {
-								$matchedPage = $page;
-								break 2;
-							}
-						}
-					}
-
-					// else the page has a static slug (i.e. uses slugMatchMode=equal, etc.)
-					else {
-						$matchedPage = $page;
-						break;
-					}
+					$matchedPage = $page;
+					break;
 				}
 			}
 		}
 		
 		if ($matchedPage) {
+			//remove first match, which is the entire url
+			array_shift($matches);
+			
 			$info = [
 				'page' => $matchedPage,
 				'hints' => [],
